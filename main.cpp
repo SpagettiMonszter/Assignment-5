@@ -97,9 +97,9 @@ int main(int argc, char *argv[]) {
 	// <---
 	// YOUR CODE GOES HERE
 	// read in file
+	cout << "Running Program ..." << endl;
 	if(argc < 2)
 	{ 
-		cout << "Running Program ..." << endl;
 		return 1;
 	}
 
@@ -108,12 +108,20 @@ int main(int argc, char *argv[]) {
 	inFile.open(argv[1]);
 	if (inFile)
 	{
-		cout << "I'm here bois" << endl;
+		string line;
+		while (getline(inFile, line))
+		{
+			if (line[0] != ';')
+			{
+				cout << line << '\n'; // print each line
+			}
+		}
 	}
 	// check to see if file opens
-	if (!inFile)
+	else
 	{
 		cout << "break" << endl;
+		cout << "ERROR: file not found!" << endl;	
 	}
 
 	
@@ -151,7 +159,7 @@ int main(int argc, char *argv[]) {
 		//
 		// (1) Execute instructions in sequential order
 		//
-	std::cout << "Running program..." << std::endl;
+	//std::cout << "Running program..." << std::endl;
 	int reg = 0; // register variable
 	// -->
 	return EXIT_SUCCESS;
