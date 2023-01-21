@@ -119,6 +119,7 @@ int main(int argc, char *argv[]) {
 	
 	// create the table of opcodes
 	initializeOpcodeTable();
+	
 
 
 	
