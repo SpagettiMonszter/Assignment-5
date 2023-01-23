@@ -109,13 +109,34 @@ int main(int argc, char *argv[]) {
 	if (inFile)
 	{
 		string line;
-		while (getline(inFile, line))
+		string token;
+		int count; // initialize counter keep track values stored
+		string labelArray[LABEL_COUNT];
+		string label;
+
+		while (getline(inFile, line) && count < LABEL_COUNT)
 		{
-			if (line[0] != ';')
-			{
-				cout << line << '\n'; // print each line
-			}
+			// split the line by spaces
+			istringstream iss(line);
+			
+			iss >> label;
+
+			labelArray[count] = label;
+
+			count++;
 		}
+
+		for (int i = 0; i < count; i++)
+		{
+			if (line[0] != ';') // remove comments
+			{
+				cout << label[i] << endl; // print each line
+			}			
+		}
+		inFile.close();
+			
+		// write code that will parse through each character and stops once it finds a white space
+		// then save that code into array for labels
 	}
 	// check to see if file opens
 	else
