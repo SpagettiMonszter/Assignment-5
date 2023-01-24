@@ -3,15 +3,22 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <unordered_map>
+#include <iterator>
 
 //setting namespace
 using namespace std;
 
 
 // Forward declaration of Symbol
-struct Symbol;
+// used to store name of a label, and  memory that represents the location where a memory should jump to
+struct Symbol
+{
+	string labelName = "";
+	int memoryLocation = 0;
+};
+
 // Forward declaration of Opcode
+// stores name of the opcode and mnemonic representation (int)
 // Opcode = custom data type ????
 struct Opcode;
 
@@ -25,19 +32,7 @@ const std::string OPCODE_LIST = "const get put ld st add sub mul div cmp jpos jz
 // <--
 // YOUR CODE GOES HERE
 // vv stores opcode, using class unordered_map, to their respective values
-unordered_map <string, int> opcode_table;
-void initializeOpcodeTable()
-{
-	istringstream iss(OPCODE_LIST);
-	string opcode;
-	int value = 1;
-	// parse list of codes
-	while ( iss >> opcode)
-	{
-		opcode_table[opcode] = value;
-		value++;
-	}
-}
+
 // -->
 
 // Helper functions
@@ -109,30 +104,60 @@ int main(int argc, char *argv[]) {
 	if (inFile)
 	{
 		string line;
-		string token;
-		int count; // initialize counter keep track values stored
-		string labelArray[LABEL_COUNT];
-		string label;
+		int count = 0; // initialize counter keep track values stored
 
-		while (getline(inFile, line) && count < LABEL_COUNT)
+		while (getline(inFile, line))
 		{
-			// split the line by spaces
-			istringstream iss(line);
-			
-			iss >> label;
-
-			labelArray[count] = label;
-
-			count++;
-		}
-
-		for (int i = 0; i < count; i++)
-		{
-			if (line[0] != ';') // remove comments
+			if (line.find(";") != string::npos) // remove comments
 			{
-				cout << label[i] << endl; // print each line
+				continue; // skips line if it begins with a ';'
 			}			
+
+			istringstream iss(line);
+			string input_string = "";
+			iss >> noskipws;
+			string labels[LABEL_COUNT];
+			int label_count =0;
+			char character;
+			while (iss >> (character))
+			{
+				if (!isspace(character))
+				{
+					//loop and store into string until next whitespace
+					input_string += character;
+
+				}
+				else if(input_string != "")
+				{
+					labels[label_count] = input_string;
+					label_count++;
+					input_string.clear();
+					break;
+				}
+				else
+				{
+					break;
+				}
+				if (label_count >= LABEL_COUNT)
+				{
+					break;
+				}
+			}
+			// if (!input_string.empty())
+			// {
+			// 	labels[label_count] = input_string;
+			// 	label_count++;
+			// }
+			
+			for (int i =0; i < label_count; i++)
+			{
+				cout << labels[i] << " " << endl;
+			}
+			count ++;
 		}
+
+
+	
 		inFile.close();
 			
 		// write code that will parse through each character and stops once it finds a white space
@@ -147,7 +172,7 @@ int main(int argc, char *argv[]) {
 
 	
 	// create the table of opcodes
-	initializeOpcodeTable();
+	
 
 
 	
