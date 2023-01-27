@@ -1,9 +1,14 @@
-
+/*
+    Name: Tess_Mulkey, 8000138541, 202.1001, ASSIGNMENT_1
+    Description: Assembly interpreter
+    Input: Varying asm files
+    Output: values dependent on assembly file instructions
+*/
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <iterator>
+#include <array>
 
 //setting namespace
 using namespace std;
@@ -20,7 +25,31 @@ struct Symbol
 // Forward declaration of Opcode
 // stores name of the opcode and mnemonic representation (int)
 // Opcode = custom data type ????
-struct Opcode;
+struct Opcode
+{
+	string codeName;
+	int codeNumber;
+	Opcode(string name, int number) : codeName(name), codeNumber(number){}
+};
+// stored values for name command and code
+Opcode code00("const", 0);
+Opcode code01("get", 1);
+Opcode code02("put",2);
+Opcode code03("ld X", 3);
+Opcode code04("st X", 4);
+Opcode code05("add X", 5);
+Opcode code06("sub X", 6);
+Opcode code07("mul X", 7);
+Opcode code08("div X", 8);
+Opcode code09("comp X", 9);
+Opcode code10("jpos X", 10);
+Opcode code11("jz X", 11);
+Opcode code12("j X", 12);
+Opcode code13("jl X", 13);
+Opcode code14("jle X", 14);
+Opcode code15("jg X", 15);
+Opcode code16("jge X", 16);
+Opcode code17("halt X", 17);
 
 // Global constant variables
 const int LABEL_COUNT = 100; 	///< default number of labels
@@ -28,10 +57,25 @@ const int OPCODE_COUNT = 18; 	///< default number of opcodes
 const int MAX_CHARS = 5;		///< maximum number of characters
 const int STACK_SIZE = 1000;	///< maximum capacity of array
 
-const std::string OPCODE_LIST = "const get put ld st add sub mul div cmp jpos jz j jl jle jg jge halt"; ///< list of opcodes needed for interpretation 
-// <--
+/// list of opcodes needed for interpretation 
+const std::string OPCODE_LIST = 
+"const get put ld st add sub mul div cmp jpos jz j jl jle jg jge halt"; 
+
 // YOUR CODE GOES HERE
-// vv stores opcode, using class unordered_map, to their respective values
+//Function split opcode
+void splitOpcode(string inst, Opcode* opcodes)
+{
+	stringstream opcodeSS(OPCODE_LIST);
+	array<string, 18> opcode_array;
+	string opcode;
+	int index = 0;
+	while (opcodeSS >> opcode)
+	{
+		opcode_array[index] = opcode;
+		index ++;
+	};
+}
+
 
 // -->
 
@@ -55,7 +99,8 @@ int padding(std::string str, int len) {
 // 	int pad = 0;
 // 	for (int i = 0; i < count; ++i) {
 // 		pad = padding(opcodes[i].name, MAX_CHARS);
-// 		std::cout << "> " << opcodes[i].name << std::string(pad, ' ') << opcodes[i].code << std::endl;
+// 		std::cout << "> " << opcodes[i].name << std::string(pad, ' ') 
+// 		<< opcodes[i].code << std::endl;
 // 	}
 // }
 
@@ -68,7 +113,8 @@ int padding(std::string str, int len) {
 // 	int pad = 0;
 // 	for (int i = 0; i < count; ++i) {
 // 		pad = padding(labels[i].name, MAX_CHARS);
-// 		std::cout << "> " << "[" << labels[i].name << "] = " << labels[i].mem << std::endl; 
+// 		std::cout << "> " << "[" << labels[i].name << "] = " 
+		// << labels[i].mem << std::endl; 
 // 	}
 // }
 
@@ -105,63 +151,80 @@ int main(int argc, char *argv[]) {
 	{
 		string line;
 		int count = 0; // initialize counter keep track values stored
-
+		string labels[LABEL_COUNT];
+		string labels2[LABEL_COUNT];
+		string commands[LABEL_COUNT];
 		while (getline(inFile, line))
-		{
-			if (line.find(";") != string::npos) // remove comments
-			{
-				continue; // skips line if it begins with a ';'
-			}			
-
+		{	
 			istringstream iss(line);
-			string input_string = "";
-			iss >> noskipws;
-			string labels[LABEL_COUNT];
-			int label_count =0;
-			char character;
-			while (iss >> (character))
-			{
-				if (!isspace(character))
-				{
-					//loop and store into string until next whitespace
-					input_string += character;
+			string word = "";
 
-				}
-				else if(input_string != "")
-				{
-					labels[label_count] = input_string;
-					label_count++;
-					input_string.clear();
-					break;
-				}
-				else
-				{
-					break;
-				}
-				if (label_count >= LABEL_COUNT)
-				{
-					break;
-				}
-			}
-			// if (!input_string.empty())
-			// {
-			// 	labels[label_count] = input_string;
-			// 	label_count++;
-			// }
-			
-			for (int i =0; i < label_count; i++)
+			if (!isspace(line[0]))
 			{
-				cout << labels[i] << " " << endl;
+				// label | command | label
+				iss >> word;
+				if(word[0]== ';')
+				{
+					count++;
+					continue;
+				}
+				labels[count] = word;
+				iss >> word;
+				if(word[0]== ';')
+				{
+					count++;
+					continue;
+				}
+				commands[count] = word;
+				iss >> word;
+				if(word[0]== ';')
+				{
+					count++;
+					continue;
+				}
+				if ( word != commands[count])
+				{
+					labels2[count] = word;
+				}
+			} 
+			else if (line.size() > 0)
+			{
+				//       | command | label
+				labels[count] = "";
+				iss >> word;
+				if(word[0]== ';')
+				{
+					count++;
+					continue;
+				}
+				commands[count] = word;
+				iss >> word;
+				if(word[0]== ';')
+				{
+					count++;
+					continue;
+				}
+				if ( word != commands[count])
+				{
+					labels2[count] = word;
+				}
 			}
-			count ++;
+			
+			count++;
+		}
+
+		cout << "Checking Stored Data:" << endl;
+		for (int i = 0; i < count; i++)
+		{
+			cout << labels[i] << " " << commands[i] << " " << labels2[i] << endl;
 		}
 
 
 	
 		inFile.close();
 			
-		// write code that will parse through each character and stops once it finds a white space
-		// then save that code into array for labels
+		// write code that will parse through each character and 
+		// stops once it finds a white spacethen save that code into array for labels
 	}
 	// check to see if file opens
 	else
